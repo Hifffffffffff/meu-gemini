@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu Gemini</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 15px; background: #f0f2f5; display: flex; flex-direction: column; height: 90vh; }
+    #chat { flex: 1; border: 1px solid #ddd; background: #fff; border-radius: 8px; padding: 10px; overflow-y: auto; margin-bottom: 10px; }
+    .msg { margin-bottom: 10px; padding: 8px 12px; border-radius: 6px; }
+    .user { background: #e3f2fd; color: #0d47a1; align-self: flex-end; }
+    .bot { background: #f1f8e9; color: #1b5e20; }
+    .box { display: flex; gap: 8px; }
+    input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
+    button { padding: 12px 18px; background: #1976d2; color: #fff; border: none; border-radius: 6px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h3>Meu Gemini</h3>
+  <div id="chat"></div>
+  <div class="box">
+    <input type="text" id="userInput" placeholder="Digite aqui...">
+    <button onclick="enviar()">Enviar</button>
+  </div>
+
+  <script>
+    async function enviar() {
+      const input = document.getElementById('userInput');
+      const chat = document.getElementById('chat');
+      const prompt = input.value.trim();
+      if (!prompt) return;
+
+      chat.innerHTML += `<div class="msg user"><b>Você:</b> ${prompt}</div>`;
+      input.value = '';
+      chat.scrollTop = chat.scrollHeight;
+
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt })
+        });
+        const data = await response.json();
+        chat.innerHTML += `<div class="msg bot"><b>Gemini:</b> ${data.resposta || 'Erro na resposta.'}</div>`;
+      } catch (e) {
+        chat.innerHTML += `<div class="msg bot"><b>Erro:</b> Não foi possível conectar.</div>`;
+      }
+      chat.scrollTop = chat.scrollHeight;
+    }
+  </script>
+</body>
+</html>
